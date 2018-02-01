@@ -24,7 +24,10 @@ class TodoController extends Controller
      */
     public function index()
     {
-        $todos = Todo::oldest()->paginate(10);
+        $todos = Todo::where('user_id', auth()->id())
+                  ->latest()
+                  ->paginate(10);
+
         $n = (($todos->currentpage() - 1) * $todos->perpage()) + 1;
         return view('todo.index', compact('todos', 'n'));
     }
@@ -52,11 +55,13 @@ class TodoController extends Controller
         ]);
 
         $todo = new Todo;
+        $todo->user_id = auth()->id();
         $todo->todo = $request->todo;
         $todo->save();
 
         session()->flash('success', 'Successfully Added!');
         return redirect()->back();
+        ;
     }
 
     /**
